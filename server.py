@@ -7,6 +7,6 @@ def root():
     return "Hello, World!"
 
 try:
-    app.run()
+    app.run(host='0.0.0.0')
 except InterruptedError:
     pass
