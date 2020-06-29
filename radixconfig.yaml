@@ -13,7 +13,6 @@ spec:
     ports:
     - name: server-port
       port: 5000
-    publicPort: server-port
     environmentConfig:
     - environment: hello-world
       resources:
@@ -23,3 +22,23 @@ spec:
         limits:
           memory: 250M
           cpu:    500m
+  - name: auth-proxy
+    image: quay.io/pusher/oauth2_proxy
+    ports:
+    - name: auth-port
+      port: 4180 # default port oauth2 proxy hosts on
+    publicPort: auth-port
+    variables:
+      OAUTH2_PROXY_PROVIDER: oidc # openid connect
+      OAUTH2_PROXY_OIDC_ISSUER_URL: https://login.microsoftonline.com/d5e6e163-5a2d-41d6-a020-c38eba6d9061/v2.0 # the uid is a tenant-id
+      OAUTH2_PROXY_CLIENT_ID: e632d9ff-0bb9-4ae4-9649-4bbf43448c66 # client-id
+      OAUTH2_PROXY_REDIRECT_URL: https://auth-proxy-radix-getting-started-hello-world.dev.radix.equinor.com/oauth2/callback
+      OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: true
+      OAUTH2_PROXY_SCOPE: openid email
+      OAUTH2_PROXY_EMAIL_DOMAINS: '*'
+      OAUTH2_PROXY_UPSTREAMS: http://server:5000 # where authenticated requests are routed to.
+      OAUTH2_PROXY_HTTP_ADDRESS: '' # listen to any ip (default is restricted to localhost)
+      OAUTH2_PROXY_COOKIE_REFRESH: 60m
+    secrets:
+    - OAUTH2_PROXY_CLIENT_SECRET # client secret for application in Azure
+    - OAUTH2_PROXY_COOKIE_SECRET # a secret key used to encrypt the auth tokens sent to browser in cookie
