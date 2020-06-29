@@ -1,0 +1,25 @@
+apiVersion: radix.equinor.com/v1
+kind: RadixApplication
+metadata:
+  name: radix-getting-started
+spec:
+  environments:
+  - name: hello-world
+    build:
+      from: python-container
+  components:
+  - name: server
+    src: .
+    ports:
+    - name: server-port
+      port: 5000
+    publicPort: server-port
+    environmentConfig:
+    - environment: hello-world
+      resources:
+        requests:
+          memory: 25M
+          cpu:    50m
+        limits:
+          memory: 250M
+          cpu:    500m
